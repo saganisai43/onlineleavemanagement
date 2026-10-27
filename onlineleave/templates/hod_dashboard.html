@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}HOD Dashboard - Online Leave Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title-area">
+        <h1 class="page-title">HOD Management Dashboard</h1>
+        <p class="page-subtitle">Departmental leave administration &bull; Review, approve, or reject faculty applications.</p>
+    </div>
+</div>
+
+<!-- Overview Statistics Cards -->
+<section class="stats-grid stats-grid-4">
+    <div class="stat-card">
+        <div class="stat-label">Registered Faculty</div>
+        <div class="stat-value">{{ stats.faculty_count }}</div>
+        <div class="stat-desc">Active faculty accounts</div>
+    </div>
+    <div class="stat-card stat-card-pending">
+        <div class="stat-label">Pending Reviews</div>
+        <div class="stat-value text-pending">{{ stats.pending_count }}</div>
+        <div class="stat-desc">Requires immediate action</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Approved Applications</div>
+        <div class="stat-value text-approved">{{ stats.approved_count }}</div>
+        <div class="stat-desc">Granted leave requests</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Rejected Applications</div>
+        <div class="stat-value text-rejected">{{ stats.rejected_count }}</div>
+        <div class="stat-desc">Denied with remarks</div>
+    </div>
+</section>
+
+<!-- Filter Navigation Tabs -->
+<div class="filter-bar">
+    <div class="filter-label">Filter Applications:</div>
+    <div class="filter-pills">
+        <a href="{{ url_for('hod_dashboard') }}" class="filter-pill {% if current_filter == 'all' %}active{% endif %}">
+            All Applications ({{ stats.pending_count + stats.approved_count + stats.rejected_count }})
+        </a>
+        <a href="{{ url_for('hod_dashboard', status='Pending') }}" class="filter-pill {% if current_filter == 'Pending' %}active{% endif %}">
+            Pending ({{ stats.pending_count }})
+        </a>
+        <a href="{{ url_for('hod_dashboard', status='Approved') }}" class="filter-pill {% if current_filter == 'Approved' %}active{% endif %}">
+            Approved ({{ stats.approved_count }})
+        </a>
+        <a href="{{ url_for('hod_dashboard', status='Rejected') }}" class="filter-pill {% if current_filter == 'Rejected' %}active{% endif %}">
+            Rejected ({{ stats.rejected_count }})
+        </a>
+    </div>
+</div>
+
+<!-- Applications Management Table -->
+<section class="card section-card">
+    <div class="card-header-flex">
+        <h2 class="card-title">Leave Applications Review</h2>
+        <span class="record-count">{{ applications|length }} matching record(s)</span>
+    </div>
+
+    {% if applications %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Applicant</th>
+                        <th>Type</th>
+                        <th>Dates &amp; Duration</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th style="min-width: 260px;">Action / Decision Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                        <tr class="{% if app.status == 'Pending' %}row-pending{% endif %}">
+                            <td class="font-mono">#{{ app.id }}</td>
+                            <td>
+                                <div class="faculty-info">
+                                    <strong class="faculty-name">{{ app.faculty_name }}</strong>
+                                    <span class="faculty-email">{{ app.faculty_email }}</span>
+                                </div>
+                            </td>
+                            <td><span class="type-tag">{{ app.leave_type }}</span></td>
+                            <td>
+                                <div class="date-range">
+                                    {{ app.start_date }} <span class="text-muted">&rarr;</span> {{ app.end_date }}
+                                </div>
+                                <span class="days-pill">{{ app.days }} day(s)</span>
+                            </td>
+                            <td class="reason-cell" title="{{ app.reason }}">{{ app.reason }}</td>
+                            <td>
+                                <span class="badge badge-{{ app.status|lower }}">
+                                    {{ app.status }}
+                                </span>
+                            </td>
+                            <td class="text-muted whitespace-nowrap">{{ app.created_at[:16] }}</td>
+                            <td>
+                                {% if app.status == 'Pending' %}
+                                    <form method="POST" action="{{ url_for('review_request', request_id=app.id) }}" class="review-form">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        
+                                        <div class="remarks-input-group">
+                                            <input 
+                                                type="text" 
+                                                name="remarks" 
+                                                class="form-control form-control-sm remarks-input" 
+                                                placeholder="Remarks (mandatory if rejecting)"
+                                                maxlength="500"
+                                            >
+                                        </div>
+                                        <div class="action-buttons-group">
+                                            <button 
+                                                type="submit" 
+                                                name="action" 
+                                                value="approve" 
+                                                class="btn btn-success btn-xs action-btn-approve"
+                                                onclick="return confirm('Are you sure you want to approve request #{{ app.id }} ({{ app.days }} days for {{ app.faculty_name }})?');"
+                                            >
+                                                &#10003; Approve
+                                            </button>
+                                            <button 
+                                                type="submit" 
+                                                name="action" 
+                                                value="reject" 
+                                                class="btn btn-danger btn-xs action-btn-reject"
+                                                onclick="return validateReject(this.form, {{ app.id }});"
+                                            >
+                                                &#10005; Reject
+                                            </button>
+                                        </div>
+                                    </form>
+                                {% else %}
+                                    <div class="decision-summary">
+                                        {% if app.hod_remarks %}
+                                            <div class="decision-remarks"><em>"{{ app.hod_remarks }}"</em></div>
+                                        {% else %}
+                                            <span class="text-muted">No remarks entered.</span>
+                                        {% endif %}
+                                        <div class="decision-timestamp text-muted">
+                                            Reviewed: {{ app.reviewed_at[:16] if app.reviewed_at else 'N/A' }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3>No Applications in this View</h3>
+            <p class="text-muted">There are currently no leave applications matching the selected criteria.</p>
+            {% if current_filter != 'all' %}
+                <a href="{{ url_for('hod_dashboard') }}" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+                    View All Applications
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function validateReject(form, id) {
+    const remarks = form.querySelector('input[name="remarks"]').value.trim();
+    if (!remarks) {
+        alert('Please provide remarks explaining why request #' + id + ' is being rejected.');
+        form.querySelector('input[name="remarks"]').focus();
+        return false;
+    }
+    return confirm('Are you sure you want to REJECT request #' + id + ' with the entered remarks?');
+}
+</script>
+{% endblock %}

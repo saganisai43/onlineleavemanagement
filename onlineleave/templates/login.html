@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Online Leave Management System{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            {% if portal == 'hod' %}
+                <div class="portal-badge portal-badge-hod">HOD Administrative Login</div>
+                <h2 class="auth-title">HOD Portal Login</h2>
+                <p class="auth-subtitle">Sign in to review and manage faculty leave requests.</p>
+            {% elif portal == 'faculty' %}
+                <div class="portal-badge portal-badge-faculty">Faculty Member Login</div>
+                <h2 class="auth-title">Faculty Portal Login</h2>
+                <p class="auth-subtitle">Sign in to check your leave balance and apply for leave.</p>
+            {% else %}
+                <div class="portal-badge">System Login</div>
+                <h2 class="auth-title">Account Login</h2>
+                <p class="auth-subtitle">Please enter your credentials to access your dashboard.</p>
+            {% endif %}
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="portal" value="{{ portal or '' }}">
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-control" 
+                    placeholder="e.g., faculty@vmr.edu.in" 
+                    required 
+                    autocomplete="email"
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control" 
+                    placeholder="Enter your password" 
+                    required 
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <div class="auth-footer">
+            {% if portal == 'faculty' or not portal %}
+                <p class="auth-footer-text">
+                    Don't have a faculty account yet? 
+                    <a href="{{ url_for('register') }}" class="inline-link">Register as Faculty</a>
+                </p>
+            {% endif %}
+            <p class="auth-footer-text switch-portal">
+                {% if portal == 'faculty' %}
+                    Are you the Head of Department? <a href="{{ url_for('login', portal='hod') }}" class="inline-link">Switch to HOD Login</a>
+                {% elif portal == 'hod' %}
+                    Are you a faculty member? <a href="{{ url_for('login', portal='faculty') }}" class="inline-link">Switch to Faculty Login</a>
+                {% else %}
+                    <a href="{{ url_for('index') }}" class="inline-link">&larr; Return to Portal Selection</a>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

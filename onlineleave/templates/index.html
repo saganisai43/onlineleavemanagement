@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Online Leave Management System{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-badge">Official Portal</div>
+    <h1 class="hero-title">Online Leave Management System</h1>
+    <p class="hero-subtitle">
+        A simple, secure, and transparent platform for faculty leave applications and approval management at 
+        <strong>VMR PRADEEP KUMAR INSTITUTION OF ENGINEERING AND TECHNOLOGY</strong>.
+    </p>
+</section>
+
+<section class="portal-selection">
+    <div class="portal-grid">
+        <!-- Faculty Portal Card -->
+        <div class="portal-card portal-card-faculty">
+            <div class="portal-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+                    <path d="M6 6h10"></path>
+                    <path d="M6 10h10"></path>
+                    <path d="M6 14h6"></path>
+                </svg>
+            </div>
+            <h2 class="portal-title">Faculty Portal</h2>
+            <p class="portal-description">
+                Apply for leave, track your applications in real-time, monitor your remaining leave balance, and review remarks from the Head of Department.
+            </p>
+            <div class="portal-actions">
+                <a href="{{ url_for('login', portal='faculty') }}" class="btn btn-primary btn-block">
+                    Continue as Faculty
+                </a>
+                <div class="portal-subtext">
+                    New faculty member? <a href="{{ url_for('register') }}" class="inline-link">Register here</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOD Portal Card -->
+        <div class="portal-card portal-card-hod">
+            <div class="portal-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                    <path d="m9 10 2 2 4-4"></path>
+                </svg>
+            </div>
+            <h2 class="portal-title">HOD Portal</h2>
+            <p class="portal-description">
+                Review leave applications submitted across departments, verify faculty balances, approve or reject requests with remarks, and monitor institutional records.
+            </p>
+            <div class="portal-actions">
+                <a href="{{ url_for('login', portal='hod') }}" class="btn btn-navy btn-block">
+                    Continue as HOD
+                </a>
+                <div class="portal-subtext">
+                    Administrative access only. Managed via secure CLI setup.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="card">
+        <h3 class="section-title">About the Leave Management System</h3>
+        <p class="section-text">
+            Designed specifically for VMR Pradeep Kumar Institution of Engineering and Technology, this system replaces manual paper-based leave slips with a robust, automated digital workflow.
+        </p>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-bullet">&bull;</div>
+                <div>
+                    <strong>Automated Accounting:</strong> Instant calculation of leave days and dynamic deduction upon HOD approval.
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-bullet">&bull;</div>
+                <div>
+                    <strong>Conflict &amp; Overlap Detection:</strong> Prevents double-booking dates and guarantees balance integrity.
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-bullet">&bull;</div>
+                <div>
+                    <strong>Role-Based Security:</strong> Strict backend authorization separating Faculty operations from HOD administrative approvals.
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-bullet">&bull;</div>
+                <div>
+                    <strong>Transparent Workflow:</strong> Direct visibility of submission dates, decision timestamps, and reviewer remarks.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

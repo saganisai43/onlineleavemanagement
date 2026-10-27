@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ error_code or 'Notice' }} - Online Leave Management System{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="card error-card">
+        <div class="error-badge">{{ error_code or 'Notice' }}</div>
+        <h1 class="error-title">
+            {% if error_code == 404 %}
+                Page Not Found
+            {% elif error_code == 403 %}
+                Access Denied
+            {% elif error_code == 500 %}
+                Internal Server Error
+            {% else %}
+                Something Went Wrong
+            {% endif %}
+        </h1>
+        <p class="error-message">
+            {{ error_message or "An unexpected issue occurred while processing your request." }}
+        </p>
+
+        <div class="error-actions">
+            {% if session.get('user_id') %}
+                {% if session.get('user_role') == 'hod' %}
+                    <a href="{{ url_for('hod_dashboard') }}" class="btn btn-primary">Return to HOD Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-primary">Return to Faculty Dashboard</a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Homepage</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

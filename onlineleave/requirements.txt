@@ -1,0 +1,8 @@
+flask>=2.2,<3.0; python_version < "3.8"
+flask>=3.0; python_version >= "3.8"
+flask-wtf>=1.0,<1.2; python_version < "3.8"
+flask-wtf>=1.2; python_version >= "3.8"
+python-dotenv>=0.20
+pytest>=7.0,<8.0; python_version < "3.8"
+pytest>=8.0; python_version >= "3.8"
+

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Leave Management System{% endblock %} - VMR Pradeep Kumar Institution of Engineering and Technology</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-section">
+                <div class="institution-name">VMR PRADEEP KUMAR INSTITUTION OF ENGINEERING AND TECHNOLOGY</div>
+                <div class="system-title">
+                    <a href="{{ url_for('index') }}" class="brand-link">Online Leave Management System</a>
+                </div>
+            </div>
+            <nav class="nav-section">
+                {% if session.get('user_id') %}
+                    <div class="user-greeting">
+                        <span class="user-name">{{ session.get('user_name') }}</span>
+                        <span class="role-badge role-badge-{{ session.get('user_role') }}">
+                            {{ session.get('user_role')|upper }}
+                        </span>
+                    </div>
+                    {% if session.get('user_role') == 'faculty' %}
+                        <a href="{{ url_for('faculty_dashboard') }}" class="nav-link">Dashboard</a>
+                        <a href="{{ url_for('apply_leave') }}" class="nav-link">Apply Leave</a>
+                    {% elif session.get('user_role') == 'hod' %}
+                        <a href="{{ url_for('hod_dashboard') }}" class="nav-link">HOD Dashboard</a>
+                    {% endif %}
+                    <form action="{{ url_for('logout') }}" method="POST" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                    <a href="{{ url_for('login', portal='faculty') }}" class="nav-link">Faculty Login</a>
+                    <a href="{{ url_for('login', portal='hod') }}" class="nav-link">HOD Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register Faculty</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="content-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages" id="flash-container">
+                        {% for category, message in messages %}
+                            <div class="flash-alert flash-{{ category }}" role="alert">
+                                <span class="flash-text">{{ message }}</span>
+                                <button type="button" class="flash-close" onclick="this.parentElement.remove();">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>&copy; {{ now_year or 2026 }} VMR PRADEEP KUMAR INSTITUTION OF ENGINEERING AND TECHNOLOGY. All Rights Reserved.</p>
+            <p class="footer-subtitle">Online Leave Management System &bull; College Administration Portal</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
